@@ -1,0 +1,47 @@
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ── Virtual environments ─────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── Jupyter Notebook checkpoints ────────────────────────────────────────────
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# ── Streamlit cache ──────────────────────────────────────────────────────────
+.streamlit/secrets.toml
+__streamlitcache__/
+
+# ── Data files — raw large files (keep CSVs in repo, ignore heavy formats) ──
+*.xlsx
+!data/raw/AI_Global_Trends_Dataset.xlsx
+
+# ── OS junk ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE files ────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── Environment variables ────────────────────────────────────────────────────
+.env
+.env.local
+
+# ── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
