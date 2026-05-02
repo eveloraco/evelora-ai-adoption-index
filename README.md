@@ -188,7 +188,7 @@ The AI Readiness Score and prediction model are original constructs built specif
 
 ## Brand
 
-This project is built under **Evelora Co** — a luxury AI brand building AI-powered tools, automation systems, and data solutions for professionals and founders who demand precision over noise.
+This project is built under **Evelora Co** - a luxury AI brand building AI-powered tools, automation systems, and data solutions for professionals and founders who demand precision over noise.
 
 > *If it does not feel refined, it does not ship.*
 
@@ -203,6 +203,6 @@ This project is built under **Evelora Co** — a luxury AI brand building AI-pow
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=C5AA6D&height=100&section=footer&fontColor=F7E7CE" width="100%"/>
 
-*Evelora Co · Where Elegance Meets Intelligence · 2025*
+*Evelora Co · Where Elegance Meets Intelligence · 2026*
 
 </div>
