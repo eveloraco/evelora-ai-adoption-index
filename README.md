@@ -30,7 +30,7 @@ Built by [Parisha Sharma](https://linkedin.com/in/parisha-sharma15) · Evelora C
 
 Every week, a new headline promises that AI is changing everything. Agriculture. Climate. Healthcare. Education. But what does the data actually say?
 
-This project pulls real numbers from **McKinsey**, **IBM**, **Stanford HAI**, and **PwC** — spanning 2017 to 2026 — and builds a complete picture of where AI adoption actually stands, how fast it is moving, and where it is going next.
+This project pulls real numbers from **McKinsey**, **IBM**, **Stanford HAI**, and **PwC** — spanning 2017 to 2025 — and builds a complete picture of where AI adoption actually stands, how fast it is moving, and where it is going next.
 
 The findings are not what the headlines suggest.
 
@@ -41,7 +41,7 @@ The findings are not what the headlines suggest.
 | Finding | The Reality |
 |---|---|
 | Most-talked-about AI sectors | Agriculture (42%) and Environment (44%) rank dead last |
-| Fastest-growing industry 2023-2026 | Legal Services — grew 30 percentage points |
+| Fastest-growing industry 2023-2025 | Legal Services — grew 30 percentage points |
 | Who decides AI budgets | Strategy & Finance executives — 18% use AI themselves |
 | US AI investment 2024 | $109 billion — but Singapore (2% of that) outperforms on adoption |
 | Public AI optimism | China 83%, USA 39% — yet USA leads enterprise adoption |
@@ -53,13 +53,13 @@ The findings are not what the headlines suggest.
 
 ```
 01  Who Is Actually Using AI?        15 industries, one honest ranking
-02  Who Moved the Fastest?           Growth speed 2023 to 2026
+02  Who Moved the Fastest?           Growth speed 2023 to 2025
 03  Where Inside Companies?          Which departments lead and which lag
 04  The AI Readiness Score           A composite score built from 3 metrics
 05  Predicting the Future            When each industry hits 80% adoption
 06  Money vs. Reality                Investment vs. actual adoption by country
 07  Does Trust Drive Adoption?       Public sentiment vs. enterprise usage
-08  The 8-Year Journey               From 20% in 2017 to 88% in 2026
+08  The 8-Year Journey               From 20% in 2017 to 88% in 2025
 ```
 
 ---
@@ -68,13 +68,13 @@ The findings are not what the headlines suggest.
 
 | Source | What It Covers |
 |---|---|
-| McKinsey Global AI Survey (Annual) | Org-level adoption 2017 to 2026 |
+| McKinsey Global AI Survey (Annual) | Org-level adoption 2017 to 2025 |
 | IBM Global AI Adoption Index 2024 | Business function breakdown |
-| Stanford HAI AI Index 2026 | Investment, cost trends, country data |
+| Stanford HAI AI Index 2025 | Investment, cost trends, country data |
 | PwC AI Predictions | Industry-level adoption rates |
 | Oxford Insights | Public sentiment by country |
 | Ipsos Global AI Survey 2024 | Trust and optimism data |
-| OpenAI / Reuters / TED 2026 | ChatGPT user growth milestones |
+| OpenAI / Reuters / TED 2025 | ChatGPT user growth milestones |
 
 ---
 
@@ -107,8 +107,8 @@ evelora-ai-adoption-index/
 
 | Chart | Type | What It Shows |
 |---|---|---|
-| Chart 1 | Horizontal bar | AI adoption by industry — 2026 |
-| Chart 2 | Slope / overlay bar | Growth speed 2023 to 2026 |
+| Chart 1 | Horizontal bar | AI adoption by industry — 2025 |
+| Chart 2 | Slope / overlay bar | Growth speed 2023 to 2025 |
 | Chart 3 | Horizontal bar | AI by business function |
 | Chart 4 | Bubble chart | AI Readiness Score — all industries |
 | Chart 5 | Heatmap | Adoption all industries all years |
@@ -125,8 +125,8 @@ evelora-ai-adoption-index/
 A proprietary scoring model built for this project that combines three metrics into a single number out of 100.
 
 ```
-Score = (Adoption 2026 × 0.50)
-      + (Growth 2023–2026 × 0.30)
+Score = (Adoption 2025 × 0.50)
+      + (Growth 2023–2025 × 0.30)
       + (Consistency × 0.20)
 ```
 
@@ -140,7 +140,7 @@ Score = (Adoption 2026 × 0.50)
 
 ## The Prediction Model
 
-Using linear regression on 2022 to 2026 trend data, the model projects the year each industry crosses 80% adoption — the threshold for genuine, embedded transformation.
+Using linear regression on 2022 to 2025 trend data, the model projects the year each industry crosses 80% adoption — the threshold for genuine, embedded transformation.
 
 ```
 Technology            Already above 80%
@@ -203,6 +203,6 @@ This project is built under **Evelora Co** — a luxury AI brand building AI-pow
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=C5AA6D&height=100&section=footer&fontColor=F7E7CE" width="100%"/>
 
-*Evelora Co · Where Elegance Meets Intelligence · 2026*
+*Evelora Co · Where Elegance Meets Intelligence · 2025*
 
 </div>
