@@ -57,58 +57,68 @@ def _find_notebook():
 
 NOTEBOOK_PATH = _find_notebook()
 
-# Maps a friendly chart name to (cell_index, output_index_within_cell)
-# output_index counts only the plotly outputs (every 2nd item = text, then figure)
-# We use the raw output list index, not the plotly-only count
+# ══════════════════════════════════════════════════════════════════════════
+# CHART LOADER — works locally AND on Streamlit Cloud
+# Strategy:
+#   1. Try to load from notebook outputs (great for local dev)
+#   2. Fall back to saved HTML files in assets/ (required for Streamlit Cloud)
+# So on your machine: edit notebook → save → charts update live
+# On Streamlit Cloud: HTML files in assets/ folder are always used
+# ══════════════════════════════════════════════════════════════════════════
+
+_NB_FILENAME = "01_eda_ai_adoption.ipynb"
+
+def _find_notebook():
+    # Try absolute Windows path first
+    absolute = "E:/EVELORA/evelora-ai-adoption-index/notebooks/01_eda_ai_adoption.ipynb"
+    if os.path.exists(absolute):
+        return absolute
+    # Walk up from app.py location
+    search = BASE_DIR
+    for _ in range(6):
+        for sub in ["notebooks", ""]:
+            candidate = os.path.join(search, sub, _NB_FILENAME) if sub else os.path.join(search, _NB_FILENAME)
+            if os.path.exists(candidate):
+                return os.path.normpath(candidate)
+        search = os.path.dirname(search)
+    return os.path.join(BASE_DIR, "notebooks", _NB_FILENAME)
+
+NOTEBOOK_PATH = _find_notebook()
+ASSETS_DIR    = os.path.join(BASE_DIR, "assets")
+
 CHART_MAP = {
-    "chart1_industry_adoption": (4,  0),   # Cell 4,  1st plotly output
-    "chart2_growth":            (6,  0),   # Cell 6,  1st plotly output
-    "chart3_business_function": (9,  0),   # Cell 9,  1st plotly output
-    "chart4_readiness_bubble":  (15, 0),   # Cell 15, 1st plotly output
-    "chart5_heatmap":           (19, 0),   # Cell 19, 1st plotly output
-    "chart6_investment_vs_adoption": (22, 0),  # Cell 22
-    "chart7_sentiment_vs_adoption":  (23, 0),  # Cell 23
-    "chart8_mckinsey_trend":    (24, 0),   # Cell 24, 1st plotly output
-    "chart9_chatgpt_growth":    (24, 2),   # Cell 24, 3rd output (index 2)
-    "chart10_kpi_cards":        (24, 4),   # Cell 24, 5th output (index 4)
+    "chart1_industry_adoption":      (4,  0),
+    "chart2_growth":                 (6,  0),
+    "chart3_business_function":      (9,  0),
+    "chart4_readiness_bubble":       (15, 0),
+    "chart5_heatmap":                (19, 0),
+    "chart6_investment_vs_adoption": (22, 0),
+    "chart7_sentiment_vs_adoption":  (23, 0),
+    "chart8_mckinsey_trend":         (24, 0),
+    "chart9_chatgpt_growth":         (24, 2),
+    "chart10_kpi_cards":             (24, 4),
 }
 
 
-@st.cache_data(ttl=5)   # re-reads the notebook at most every 5 seconds
+@st.cache_data(ttl=10)
 def load_notebook_charts():
-    """
-    Opens the notebook file and extracts every Plotly figure from the saved outputs.
-    Returns a dict: chart_name -> plotly Figure object (or None if not found).
-
-    ttl=5 means Streamlit will re-check the notebook every 5 seconds,
-    so your updates appear almost instantly after you save the notebook.
-    """
+    """Load charts from notebook outputs. Returns {} if notebook not found or not run."""
     charts = {}
-
     if not os.path.exists(NOTEBOOK_PATH):
-        # Notebook not found — return empty dict, show_chart will handle it gracefully
         return charts
-
     try:
         with open(NOTEBOOK_PATH, "r", encoding="utf-8") as f:
             nb = json.load(f)
+        cells = nb.get("cells", [])
+        for name, (cell_idx, out_idx) in CHART_MAP.items():
+            try:
+                out      = cells[cell_idx]["outputs"][out_idx]
+                fig_json = out["data"]["application/vnd.plotly.v1+json"]
+                charts[name] = pio.from_json(json.dumps(fig_json))
+            except Exception:
+                charts[name] = None
     except Exception:
-        return charts
-
-    cells = nb.get("cells", [])
-
-    for chart_name, (cell_idx, out_idx) in CHART_MAP.items():
-        try:
-            cell = cells[cell_idx]
-            outputs = cell.get("outputs", [])
-            out = outputs[out_idx]
-            fig_json = out["data"]["application/vnd.plotly.v1+json"]
-            # Reconstruct the Plotly figure from its JSON representation
-            fig = pio.from_json(json.dumps(fig_json))
-            charts[chart_name] = fig
-        except Exception:
-            charts[chart_name] = None   # cell not run yet or output missing
-
+        pass
     return charts
 
 
@@ -392,11 +402,20 @@ def show_chart(filename: str, caption: str = "", height: int = 550):
     # Strip .html if accidentally passed with extension
     chart_key = filename.replace(".html", "")
 
+def show_chart(filename: str, caption: str = "", height: int = 550):
+    """
+    Shows a chart using whichever source is available:
+      1. Notebook outputs — used when running locally
+      2. HTML file in assets/ — used on Streamlit Cloud and as fallback
+    If neither is available, shows a friendly placeholder.
+    """
+    chart_key = filename.replace(".html", "")
+
+    # ── Try 1: Load from notebook outputs ────────────────────────────────
     charts = load_notebook_charts()
     fig    = charts.get(chart_key)
 
     if fig is not None:
-        # Force dark background to match app theme
         fig.update_layout(
             paper_bgcolor="#1a1a1a",
             plot_bgcolor="#1a1a1a",
@@ -406,26 +425,31 @@ def show_chart(filename: str, caption: str = "", height: int = 550):
         if caption:
             st.markdown(f'<p class="chart-caption">{caption}</p>',
                         unsafe_allow_html=True)
-    else:
-        # Friendly placeholder — tells you exactly what to do
-        notebook_missing = not os.path.exists(NOTEBOOK_PATH)
-        if notebook_missing:
-            msg = (f"Notebook not found at <code style='color:#C5AA6D;'>{NOTEBOOK_PATH}</code><br>"
-                   "Make sure the notebook is in the <code style='color:#C5AA6D;'>notebooks/</code> folder.")
-        else:
-            msg = (f"Chart <code style='color:#C5AA6D;'>{chart_key}</code> not yet generated.<br>"
-                   "Run the corresponding cell in the notebook, save the file, then press "
-                   "<b>R</b> in the browser to reload.")
-        st.markdown(f"""
-        <div class="chart-missing">
-            ✦ &nbsp; {msg}<br><br>
-            <b>Quick steps:</b><br>
-            1. Open <code style="color:#C5AA6D;">notebooks/01_eda_ai_adoption.ipynb</code><br>
-            2. Run all cells: <b>Kernel → Restart and Run All</b><br>
-            3. Save the notebook (Ctrl+S)<br>
-            4. Press <b>R</b> in this browser tab
-        </div>
-        """, unsafe_allow_html=True)
+        return
+
+    # ── Try 2: Load from saved HTML file in assets/ ───────────────────────
+    html_path = os.path.join(ASSETS_DIR, chart_key + ".html")
+    if not os.path.exists(html_path):
+        # also try with .html already included
+        html_path = os.path.join(ASSETS_DIR, filename)
+
+    if os.path.exists(html_path):
+        with open(html_path, "r", encoding="utf-8") as f:
+            html = f.read()
+        st.components.v1.html(html, height=height, scrolling=False)
+        if caption:
+            st.markdown(f'<p class="chart-caption">{caption}</p>',
+                        unsafe_allow_html=True)
+        return
+
+    # ── Neither source found — show placeholder ───────────────────────────
+    st.markdown(f"""
+    <div class="chart-missing">
+        ✦ &nbsp; Chart <code style="color:#C5AA6D;">{chart_key}</code> not yet generated.<br><br>
+        <b>To fix:</b> Run all cells in the notebook → save (Ctrl+S) →
+        push the updated notebook to GitHub → Streamlit will reload automatically.
+    </div>
+    """, unsafe_allow_html=True)
 
 
 def kpi_card(number: str, label: str, source: str = "") -> str:
@@ -558,7 +582,37 @@ with st.sidebar:
 # ══════════════════════════════════════════════════════════════════════════
 
 if page == "✦  The Story Begins":
-   
+
+    # How to use — collapsible, only on page 1
+    with st.expander("📖  Charts not showing? Click here for setup instructions"):
+        st.markdown("""
+        <div style="font-size:0.9rem; line-height:1.85; color:#F7E7CE; padding:0.5rem;">
+        <p style="color:#C5AA6D !important; font-weight:700;">Why are some charts missing?</p>
+        Each chart in this app is generated by a cell in your Jupyter notebook
+        (<code style="color:#C5AA6D;">01_eda_ai_adoption.ipynb</code>) and saved as an HTML file
+        in your <code style="color:#C5AA6D;">assets/</code> folder. If a chart shows a dashed border,
+        that notebook cell hasn't been run yet.
+        <br><br>
+        <p style="color:#C5AA6D !important; font-weight:700;">Fix it in 4 steps:</p>
+        <b style="color:#C5AA6D !important;">1.</b> Open the notebook in Jupyter or VS Code<br>
+        <b style="color:#C5AA6D !important;">2.</b> Click <b>Kernel → Restart and Run All</b><br>
+        <b style="color:#C5AA6D !important;">3.</b> Wait for all cells to finish — each chart cell
+        saves an HTML file to <code style="color:#C5AA6D;">assets/</code><br>
+        <b style="color:#C5AA6D !important;">4.</b> Come back here and press <b>R</b> on your keyboard
+        to reload the app<br><br>
+        <p style="color:#C5AA6D !important; font-weight:700;">Expected files in assets/:</p>
+        chart1_industry_adoption.html &bull; chart2_growth.html &bull;
+        chart3_business_function.html &bull; chart4_readiness_bubble.html &bull;
+        chart5_heatmap.html &bull; chart6_investment_vs_adoption.html &bull;
+        chart7_sentiment_vs_adoption.html &bull; chart8_mckinsey_trend.html &bull;
+        chart9_chatgpt_growth.html
+        <br><br>
+        <p style="color:#C5AA6D !important; font-weight:700;">How to run the app:</p>
+        Open a terminal in <code style="color:#C5AA6D;">E:/EVELORA/evelora-ai-adoption-index/</code>
+        and type: <code style="color:#C5AA6D; background:#111; padding:3px 8px; border-radius:3px;">
+        streamlit run app.py</code>
+        </div>
+        """, unsafe_allow_html=True)
 
     # Hero header
     st.markdown("""
